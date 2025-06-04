@@ -1,0 +1,11 @@
+[
+  {
+    "model": "materials.course",
+    "pk": 1,
+    "fields": {
+      "title": "Основы Django",
+      "description": "Изучение базовых концепций Django",
+      "preview": null
+    }
+  }
+]

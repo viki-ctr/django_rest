@@ -1,0 +1,13 @@
+[
+  {
+    "model": "materials.lesson",
+    "pk": 1,
+    "fields": {
+      "title": "Введение в Django",
+      "description": "Первое знакомство с фреймворком",
+      "preview": null,
+      "video_link": "https://example.com/video1",
+      "course": 1
+    }
+  }
+]
