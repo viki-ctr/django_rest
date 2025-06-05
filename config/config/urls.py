@@ -18,12 +18,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from rest_framework_simplejwt.views import TokenRefreshView
 from materials.views import CourseViewSet, LessonCreateAPIView, LessonListAPIView, LessonRetrieveAPIView, LessonUpdateAPIView, LessonDestroyAPIView
-from users.views import PaymentViewSet
+from users.views import PaymentViewSet, CustomTokenObtainPairView, UserViewSet
 
 router = DefaultRouter()
 router.register(r'courses', CourseViewSet)
 router.register(r'payments', PaymentViewSet)
+router.register(r'users', UserViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -33,4 +35,6 @@ urlpatterns = [
     path('api/lessons/<int:pk>/', LessonRetrieveAPIView.as_view(), name='lesson-retrieve'),
     path('api/lessons/update/<int:pk>/', LessonUpdateAPIView.as_view(), name='lesson-update'),
     path('api/lessons/delete/<int:pk>/', LessonDestroyAPIView.as_view(), name='lesson-delete'),
+    path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
