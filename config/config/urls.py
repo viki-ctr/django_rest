@@ -18,23 +18,21 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView
-from materials.views import CourseViewSet, LessonCreateAPIView, LessonListAPIView, LessonRetrieveAPIView, LessonUpdateAPIView, LessonDestroyAPIView
-from users.views import PaymentViewSet, CustomTokenObtainPairView, UserViewSet
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from users.views import UserViewSet, CustomTokenObtainPairView
+from materials.views import CourseViewSet, LessonViewSet
 
 router = DefaultRouter()
-router.register(r'courses', CourseViewSet)
-router.register(r'payments', PaymentViewSet)
-router.register(r'users', UserViewSet)
+router.register(r'users', UserViewSet, basename='users')
+router.register(r'courses', CourseViewSet, basename='courses')
+router.register(r'lessons', LessonViewSet, basename='lessons')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(router.urls)),
-    path('api/lessons/create/', LessonCreateAPIView.as_view(), name='lesson-create'),
-    path('api/lessons/', LessonListAPIView.as_view(), name='lesson-list'),
-    path('api/lessons/<int:pk>/', LessonRetrieveAPIView.as_view(), name='lesson-retrieve'),
-    path('api/lessons/update/<int:pk>/', LessonUpdateAPIView.as_view(), name='lesson-update'),
-    path('api/lessons/delete/<int:pk>/', LessonDestroyAPIView.as_view(), name='lesson-delete'),
+
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+
+    path('api/', include(router.urls)),
 ]
