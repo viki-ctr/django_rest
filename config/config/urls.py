@@ -21,7 +21,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from users.views import UserViewSet, CustomTokenObtainPairView
-from materials.views import CourseViewSet, LessonViewSet
+from materials.views import CourseViewSet, LessonViewSet, SubscriptionAPIView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='users')
@@ -35,4 +35,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('api/', include(router.urls)),
+    path('api/subscriptions/', SubscriptionAPIView.as_view(), name='subscriptions'),
 ]
