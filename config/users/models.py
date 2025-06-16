@@ -62,3 +62,8 @@ class Payment(models.Model):
 
     def __str__(self):
         return f'{self.user} - {self.amount} ({self.payment_date})'
+
+    stripe_product_id = models.CharField(max_length=255, blank=True, null=True)
+    stripe_price_id = models.CharField(max_length=255, blank=True, null=True)
+    stripe_session_id = models.CharField(max_length=255, blank=True, null=True)
+    stripe_payment_link = models.URLField(max_length=512, blank=True, null=True)

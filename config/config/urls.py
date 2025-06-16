@@ -17,11 +17,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import TemplateView
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView
 
 from users.views import UserViewSet, CustomTokenObtainPairView
-from materials.views import CourseViewSet, LessonViewSet, SubscriptionAPIView
+from materials.views import CourseViewSet, LessonViewSet, SubscriptionAPIView, PaymentAPIView, PaymentStatusAPIView
 
 router = DefaultRouter()
 router.register(r'users', UserViewSet, basename='users')
@@ -36,4 +38,11 @@ urlpatterns = [
 
     path('api/', include(router.urls)),
     path('api/subscriptions/', SubscriptionAPIView.as_view(), name='subscriptions'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/payments/<int:course_id>/', PaymentAPIView.as_view(), name='payment'),
+    path('payment/success/', TemplateView.as_view(template_name='payment_success.html'), name='payment-success'),
+    path('payment/cancel/', TemplateView.as_view(template_name='payment_cancel.html'), name='payment-cancel'),
+    path('api/payments/status/<int:payment_id>/', PaymentStatusAPIView.as_view(), name='payment-status'),
 ]
