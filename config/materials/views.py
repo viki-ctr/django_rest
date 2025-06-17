@@ -1,4 +1,4 @@
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from users.permissions import IsModerator, IsOwner
 from .models import Course, Lesson
@@ -9,7 +9,7 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from .models import Subscription
 from .paginators import LessonPaginator, CoursePaginator
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema
 from django.urls import reverse
 from .services.stripe_service import (
     create_stripe_product,
