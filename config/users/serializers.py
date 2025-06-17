@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Payment
 
+
 class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment

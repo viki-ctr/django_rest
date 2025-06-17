@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from urllib.parse import urlparse
 
+
 def validate_youtube_url(value):
     if value:
         domain = urlparse(value).netloc
