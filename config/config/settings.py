@@ -14,6 +14,7 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from datetime import timedelta
+from celery.schedules import crontab
 
 load_dotenv(override=True)
 
@@ -48,6 +49,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'drf_spectacular',
+    'django_celery_beat',
 
     'users',
     'materials',
@@ -176,3 +178,34 @@ SPECTACULAR_SETTINGS = {
 
 STRIPE_PUBLIC_KEY = os.getenv('STRIPE_PUBLIC_KEY')
 STRIPE_API_KEY = os.getenv('STRIPE_API_KEY')
+
+# URL-адрес брокера сообщений
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379' # Например, Redis, который по умолчанию работает на порту 6379
+
+# URL-адрес брокера результатов, также Redis
+CELERY_RESULT_BACKEND = 'redis://127.0.0.1:6379'
+
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "Australia/Tasmania"
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = True
+
+# Максимальное время на выполнение задачи
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_BEAT_SCHEDULE = {
+    'check-inactive-users': {
+        'task': 'your_app.tasks.check_inactive_users',
+        'schedule': crontab(hour=0, minute=0),
+    },
+}
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+    }
+}
