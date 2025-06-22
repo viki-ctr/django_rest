@@ -18,6 +18,7 @@ from .services.stripe_service import (
     get_stripe_session_status
 )
 from users.models import Payment
+from .tasks import send_course_update_notification
 
 
 class CourseViewSet(viewsets.ModelViewSet):
@@ -40,6 +41,10 @@ class CourseViewSet(viewsets.ModelViewSet):
         if not self.request.user.groups.filter(name='moderators').exists():
             return Course.objects.filter(owner=self.request.user)
         return Course.objects.all()
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        send_course_update_notification.delay(instance.id)
 
 
 class LessonViewSet(viewsets.ModelViewSet):
