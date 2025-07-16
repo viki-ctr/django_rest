@@ -1,38 +1,55 @@
 name: Deploy LMS to Production
 
-on: [push]
+on:
+  push:
+    branches: [develop]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
-        with:
-          python-version: '3.12'
-      - run: |
-            sudo chown -R runner:runner ~/.cache
-            sudo chmod -R 755 ~/.cache
-      - name: Install Poetry
-        run: poetry install --with dev
-      - name: Run tests
-        run: poetry run pytest
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Configure Poetry cache
+      run: |
+        mkdir -p ~/.cache/pypoetry
+        chmod -R 777 ~/.cache
+
+    - name: Install Poetry
+      run: pipx install poetry
+
+    - name: Install dependencies
+      run: |
+        poetry config virtualenvs.in-project true
+        poetry install --no-interaction
+
+    - name: Run tests
+      run: poetry run pytest
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: webfactory/ssh-agent@v0.7.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-      - name: Deploy
-        run: |
-          ssh deploy@${{ secrets.SERVER_IP }} "
-            cd /home/deploy/lms_nu &&
-            git pull &&
-            poetry install --with dev
-            poetry run python manage.py migrate &&
-            poetry run python manage.py collectstatic --noinput &&
-            sudo systemctl restart gunicorn
-          "
+    - uses: actions/checkout@v4
+
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.KNOWN_HOSTS }}
+
+    - name: Deploy to server
+      run: |
+        ssh deploy_new@${{ secrets.SERVER_IP }} << 'EOF'
+        cd /home/deploy_new/myproject
+        git pull origin main
+        poetry install --no-interaction --only main
+        python manage.py migrate
+        python manage.py collectstatic --noinput
+        sudo systemctl restart gunicorn
+        EOF
