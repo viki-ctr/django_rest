@@ -1,0 +1,35 @@
+name: Deploy LMS to Production
+
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install Poetry
+        run: pip install poetry
+      - name: Run tests
+        run: poetry run pytest
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+      - name: Deploy
+        run: |
+          ssh deploy@${{ secrets.SERVER_IP }} "
+            cd /home/deploy/lms &&
+            git pull &&
+            poetry install --no-dev &&
+            poetry run python manage.py migrate &&
+            poetry run python manage.py collectstatic --noinput &&
+            sudo systemctl restart gunicorn
+          "
