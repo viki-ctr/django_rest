@@ -17,15 +17,16 @@ jobs:
 
     - name: Configure Poetry cache
       run: |
-        mkdir -p ~/.cache/pypoetry
+        mkdir -p ~/.cache
         chmod -R 777 ~/.cache
 
     - name: Install Poetry
-      run: pipx install poetry
+      run: pip install poetry
 
     - name: Install dependencies
       run: |
-        poetry config virtualenvs.in-project true
+        poetry config virtualenvs.create true
+        poetry config virtualenvs.in-project false
         poetry install --no-interaction
 
     - name: Run tests
@@ -41,11 +42,10 @@ jobs:
       uses: shimataro/ssh-key-action@v2
       with:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        known_hosts: ${{ secrets.KNOWN_HOSTS }}
 
     - name: Deploy to server
       run: |
-        ssh deploy_new@${{ secrets.SERVER_IP }} << 'EOF'
+        ssh deploy_new@${{ secrets.SERVER_IP_PRIVATE }} << 'EOF'
         cd /home/deploy_new/myproject
         git pull origin main
         poetry install --no-interaction --only main
