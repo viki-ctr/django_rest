@@ -1,0 +1,55 @@
+name: Deploy LMS to Production
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Configure Poetry cache
+      run: |
+        mkdir -p ~/.cache
+        chmod -R 777 ~/.cache
+
+    - name: Install Poetry
+      run: pip install poetry
+
+    - name: Install dependencies
+      run: |
+        poetry config virtualenvs.create true
+        poetry config virtualenvs.in-project false
+        poetry install --no-interaction
+
+    - name: Run tests
+      run: poetry run pytest
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    - name: Deploy to server
+      run: |
+        ssh deploy_new@${{ secrets.SERVER_IP_PRIVATE }} << 'EOF'
+        cd /home/deploy_new/myproject
+        git pull origin main
+        poetry install --no-interaction --only main
+        python manage.py migrate
+        python manage.py collectstatic --noinput
+        sudo systemctl restart gunicorn
+        EOF

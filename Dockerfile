@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.12
 
 WORKDIR /app
 
@@ -20,8 +20,16 @@ ENV PATH="${PATH}:/opt/poetry/bin"
 
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --no-dev --no-interaction --no-ansi
+RUN poetry install --with-dev --no-interaction --no-ansi
 
 COPY . .
 
 EXPOSE 8000
+
+FROM nginx:latest
+
+COPY nginx.conf /etc/nginx/nginx.conf
+
+COPY html/ /usr/share/nginx/html/
+
+EXPOSE 80
