@@ -47,8 +47,8 @@ jobs:
       run: |
         ssh deploy_new@${{ secrets.SERVER_IP_PRIVATE }} << 'EOF'
         cd /home/deploy_new/myproject
-        git pull origin main
-        poetry install --no-interaction --only main
+        git pull origin develop
+        poetry install --no-interaction 
         python manage.py migrate
         python manage.py collectstatic --noinput
         sudo systemctl restart gunicorn
